@@ -3,7 +3,7 @@ name: Build and deploy nopCommerce to Azure Web App - augustusdynamics
 on:
   push:
     branches:
-      - develop
+      - 4.80-bug-fixes
   workflow_dispatch:
 
 jobs:
