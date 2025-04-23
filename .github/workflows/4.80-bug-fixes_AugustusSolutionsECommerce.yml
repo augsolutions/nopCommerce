@@ -1,0 +1,60 @@
+name: Build and deploy nopCommerce to Azure Web App - AugustusSolutionsECommerce
+
+on:
+  push:
+    branches:
+      - 4.80-bug-fixes
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0'
+
+      - name: Restore dependencies
+        run: dotnet restore ./src/Presentation/Nop.Web/Nop.Web.csproj
+
+      - name: Build
+        run: dotnet build ./src/Presentation/Nop.Web/Nop.Web.csproj --configuration Release --no-restore
+
+      - name: Publish
+        run: dotnet publish ./src/Presentation/Nop.Web/Nop.Web.csproj --configuration Release --output ./publish --no-build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nopcommerce-app
+          path: ./publish
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: 'Production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nopcommerce-app
+          path: .
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'augustusdynamics'
+          slot-name: 'Production'
+          package: .
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_03A255A1C3F24EEF81BE88FA53DB95A8 }}
