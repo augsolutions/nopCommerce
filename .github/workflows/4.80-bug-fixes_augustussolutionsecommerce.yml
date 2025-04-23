@@ -57,7 +57,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'augustusdynamics'
+          app-name: 'AugustusSolutionsECommerce '
           slot-name: 'Production'
           package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1684F7270CAF4034A7CD88B69EEE3C76 }}
